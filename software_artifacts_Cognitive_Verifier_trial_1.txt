@@ -1,0 +1,231 @@
+
+--- PROMPT PATTERN: Cognitive Verifier ---
+
+--- REQUIREMENT ---
+'Authenticate and Login user to the web app.'
+
+--- USE CASE ---
+### Step-by-Step Reasoning
+
+1. **Explain the functionality or intent of the requirement:**
+   - The requirement "Authenticate and Login user to the web app" is intended to ensure that only authorized users can access the web application. This involves verifying the user's identity and granting access to the system if the credentials are valid.
+
+2. **Identify the user/actor:**
+   - The primary user or actor in this scenario is the "User" who wants to access the web application. This could be any individual who has registered for an account on the platform.
+
+3. **Describe the system behavior:**
+   - The system should present a login interface where the user can enter their credentials (typically a username and password). The system will then verify these credentials against stored data. If the credentials are correct, the user is granted access to the application. If incorrect, the system should notify the user and possibly allow retry attempts.
+
+4. **Mention any conditions or exceptions or external dependencies even if not stated directly:**
+   - Conditions: The user must have an existing account with valid credentials.
+   - Exceptions: Incorrect username or password, account locked due to multiple failed attempts, or system downtime.
+   - External Dependencies: The system may rely on external services such as a database for storing user credentials or an authentication service for verifying user identity.
+
+### Use Case
+
+- **Use case name:** User Authentication and Login
+
+- **Primary actor:** User
+
+- **Goal:** To authenticate and log in the user to the web application.
+
+- **Preconditions:**
+  - The user must have an existing account with the application.
+  - The user must have valid login credentials (username and password).
+  - The web application must be online and accessible.
+
+- **Main success scenario:**
+  1. The user navigates to the login page of the web application.
+  2. The user enters their username and password into the login form.
+  3. The system validates the entered credentials against stored data.
+  4. If the credentials are valid, the system logs the user into the application.
+  5. The user is redirected to the application's main dashboard or homepage.
+
+- **Alternate flows:**
+  - **Invalid Credentials:**
+    1. If the entered credentials are invalid, the system displays an error message indicating incorrect username or password.
+    2. The user is prompted to re-enter their credentials.
+    3. The user may attempt to
+
+--- CLASS DIAGRAM ---
+Based on the provided use case, we can create a UML-style class diagram that represents the key components involved in the user authentication and login process. Here is a simplified class diagram:
+
+```plaintext
++---------------------+
+|       User          |
++---------------------+
+| - username: String  |
+| - password: String  |
++---------------------+
+| + login()           |
+| + logout()          |
++---------------------+
+          |
+          |
+          v
++---------------------+
+|    LoginController  |
++---------------------+
+| + displayLoginForm()|
+| + authenticate()    |
++---------------------+
+          |
+          |
+          v
++---------------------+
+|   Authentication    |
++---------------------+
+| + validateCredentials(username: String, password: String): Boolean |
++---------------------+
+          |
+          |
+          v
++---------------------+
+|  UserRepository     |
++---------------------+
+| + getUser(username: String): User |
++---------------------+
+          |
+          |
+          v
++---------------------+
+|   DatabaseService   |
++---------------------+
+| + queryUserData()   |
++---------------------+
+```
+
+### Explanation:
+
+1. **User Class:**
+   - Represents the user entity with attributes `username` and `password`.
+   - Methods include `login()` and `logout()` to handle user session management.
+
+2. **LoginController Class:**
+   - Manages the login process.
+   - `displayLoginForm()` method to show the login interface.
+   - `authenticate()` method to handle the authentication process.
+
+3. **Authentication Class:**
+   - Handles the logic for validating user credentials.
+   - `validateCredentials()` method checks if the provided username and password are correct.
+
+4. **UserRepository Class:**
+   - Acts as an intermediary between the application and the database.
+   - `getUser()` method retrieves user data from the database based on the username.
+
+5. **DatabaseService Class:**
+   - Represents the external dependency for data storage.
+   - `queryUserData()` method interacts with the database to fetch user information.
+
+This diagram captures the core components and interactions necessary for user authentication and login in a web application.
+
+--- PYTHON CODE ---
+re-enter their credentials a limited number of times before additional actions are required, such as password recovery.
+
+- **Postconditions:**
+  - The user is either logged into the application or informed of the failure to authenticate.
+
+- **Exceptions:**
+  - If the system is unable to access the database, an error message is displayed to the user.
+  - If the user's account is locked due to multiple failed login attempts, the user is informed and advised to contact support.
+
+Based on the class diagram and use case provided, here is a Python implementation of the described functionality:
+
+```python
+class User:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def login(self):
+        print(f"User {self.username} logged in.")
+
+    def logout(self):
+        print(f"User {self.username} logged out.")
+
+
+class LoginController:
+    def __init__(self, authentication):
+        self.authentication = authentication
+
+    def displayLoginForm(self):
+        username = input("Enter username: ")
+        password = input("Enter password: ")
+        self.authenticate(username, password)
+
+    def authenticate(self, username, password):
+        if self.authentication.validateCredentials(username, password):
+            user = User(username, password)
+            user.login()
+            # Redirect to main dashboard or homepage
+            print("Redirecting to the main dashboard...")
+        else:
+            print("Invalid username or password. Please try again.")
+
+
+class Authentication:
+    def __init__(self, user_repository):
+        self.user_repository = user_repository
+
+    def validateCredentials(self, username, password):
+        user = self.user_repository.getUser(username)
+        if user and user.password == password:
+            return True
+        return False
+
+
+class UserRepository:
+    def __init__(self, database_service):
+        self.database_service = database_service
+
+    def getUser(self, username):
+        user_data = self.database_service.queryUserData(username)
+        if user_data:
+            return User(user_data['username'], user_data['password'])
+        return None
+
+
+class DatabaseService:
+    def __init__(self):
+        # Simulating a database with a dictionary
+        self.users = {
+            "john_doe": {"username": "john_doe", "password": "password123"},
+            "jane_smith": {"username": "jane_smith", "password": "securepass"},
+        }
+
+    def queryUserData(self, username):
+        return self.users.get(username)
+
+
+# Example usage
+database_service = DatabaseService()
+user_repository = UserRepository(database_service)
+authentication = Authentication(user_repository)
+login_controller = LoginController(authentication)
+
+login_controller.displayLoginForm()
+```
+
+### Explanation:
+
+1. **User Class:**
+   - Represents a user with `username` and `password`.
+   - Includes `login()` and `logout()` methods for session management.
+
+2. **LoginController Class:**
+   - Manages the login process.
+   - `displayLoginForm()` prompts the user for credentials and calls `authenticate()`.
+   - `authenticate()` checks credentials using the `Authentication` class.
+
+3. **Authentication Class:**
+   - Validates user credentials through `validateCredentials()`.
+   - Uses `UserRepository` to fetch user data.
+
+4. **UserRepository Class:**
+   - Retrieves user data from `DatabaseService`.
+   - `getUser()` returns a `User` object if the user exists.
+
+5. **
+
+==================================================
