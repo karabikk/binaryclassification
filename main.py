@@ -8,7 +8,7 @@ import re
 
 # API KEY
 load_dotenv()
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="------")
 
 # load csv file into a dataframe
 df = pd.read_csv("PROMISE_exp.csv")
